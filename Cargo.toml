@@ -1,0 +1,9 @@
+[package]
+name = "gradiate"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.37", features = ["derive"] }
+crossterm = "0.29.0"
+palette = { version = "0.7.6", features = ["named", "named_from_str"] }
