@@ -2,8 +2,10 @@
 name = "gradiate"
 version = "0.1.0"
 edition = "2024"
+description = "Generate gradients in your terminal"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
 crossterm = "0.29.0"
+hex_color = "3.0.0"
 palette = { version = "0.7.6", features = ["named", "named_from_str"] }
