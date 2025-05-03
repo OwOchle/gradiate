@@ -25,9 +25,7 @@ pub struct GradiateArgs {
     pub line_offset: f32,
     
     #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-    /// The text to color
-    /// 
-    /// If empty, will read stdin
+    /// The text to color, empty for stdin
     pub text: Vec<String>,
 
     #[arg(long, short, default_value="hsv")]

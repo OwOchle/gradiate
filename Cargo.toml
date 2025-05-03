@@ -9,3 +9,8 @@ clap = { version = "4.5.37", features = ["derive"] }
 crossterm = "0.29.0"
 hex_color = "3.0.0"
 palette = { version = "0.7.6", features = ["named", "named_from_str"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

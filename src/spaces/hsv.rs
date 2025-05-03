@@ -1,5 +1,4 @@
 use palette::{Hsv, IntoColor, Mix, Srgb};
-use crate::args::GradiateArgs;
 
 pub fn hsv_space(colors: &Vec<Hsv>, factor: f32) -> Srgb<u8> {
     let index = factor.floor() as usize;

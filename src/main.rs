@@ -3,7 +3,7 @@ use clap::Parser;
 use crossterm::queue;
 use crossterm::style::{Color, Print, ResetColor, SetForegroundColor};
 use hex_color::HexColor;
-use palette::{named, FromColor, Hsv, IntoColor, Mix, Srgb};
+use palette::{named, FromColor, Hsv, IntoColor, Srgb};
 use std::io::{stdin, stdout, Write};
 use std::ops::Deref;
 use crate::spaces::hsv::hsv_space;
@@ -42,7 +42,12 @@ fn main() {
             }
         }
     } else {
-        colors = vec![Hsv::from_color(named::RED.into_format()), Hsv::from_color(named::BLUE.into_format())]
+        colors = color_vector!(
+            Srgb::new(255u8, 0, 0);
+            Srgb::new(0u8, 255, 0);
+            Srgb::new(0u8, 0, 255)
+        );
+        space = MixSpace::HSV
     }
 
     let mut stdout = stdout();
