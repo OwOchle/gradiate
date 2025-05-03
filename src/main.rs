@@ -1,10 +1,10 @@
 use crate::args::{GradiateArgs, MixSpace};
 use clap::Parser;
 use crossterm::queue;
-use crossterm::style::{Color, Print, SetForegroundColor};
+use crossterm::style::{Color, Print, ResetColor, SetForegroundColor};
 use hex_color::HexColor;
 use palette::{named, FromColor, Hsv, IntoColor, Mix, Srgb};
-use std::io::{stdout, Write};
+use std::io::{stdin, stdout, Write};
 use std::ops::Deref;
 use crate::spaces::hsv::hsv_space;
 use crate::spaces::rgb::rgb_space;
@@ -48,27 +48,51 @@ fn main() {
     let mut stdout = stdout();
 
     if args.text.len() == 0 {
-        // TODO: Stdin
+        for (i, rline) in stdin().lines().enumerate() {
+            if rline.is_err() {
+                continue
+            }
+            
+            let line = rline.unwrap();
+            let quantum = (colors.len() - 1) as f32 / line.len() as f32;
+            let mut factor = i as f32 * args.line_offset;
+
+            for cha in line.chars() {
+                let mix = match space {
+                    MixSpace::RGB => rgb_space(&colors, factor),
+                    MixSpace::HSV => hsv_space(&colors, factor)
+                };
+
+                let _ = queue!(stdout, SetForegroundColor(Color::Rgb {r: mix.red, g: mix.green, b: mix.blue}), Print(cha));
+
+                factor += quantum;
+            }
+
+            println!();
+        }
     } else {
         let out = args.text.join(" ");
-        let quantum = (colors.len() - 1) as f32 / out.len() as f32;
-
-        let mut factor: f32 = 0.0;
         
-
-        for cha in out.chars() {
-            let mix = match space {
-                MixSpace::RGB => rgb_space(&colors, factor),
-                MixSpace::HSV => hsv_space(&colors, factor)
-            };
+        for (i, line) in out.lines().enumerate() {
+            let quantum = (colors.len() - 1) as f32 / line.len() as f32;
+            let mut factor = i as f32 * args.line_offset;
             
-            let _ = queue!(stdout, SetForegroundColor(Color::Rgb {r: mix.red, g: mix.green, b: mix.blue}), Print(cha));
+            for cha in line.chars() {
+                let mix = match space {
+                    MixSpace::RGB => rgb_space(&colors, factor),
+                    MixSpace::HSV => hsv_space(&colors, factor)
+                };
 
-            factor += quantum;
+                let _ = queue!(stdout, SetForegroundColor(Color::Rgb {r: mix.red, g: mix.green, b: mix.blue}), Print(cha));
+
+                factor += quantum;
+            }
+
+            println!();
         }
     }
-
-    println!();
+    
+    let _ = queue!(stdout, ResetColor);
 
     stdout.flush().unwrap()
 }
