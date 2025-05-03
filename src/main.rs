@@ -1,32 +1,74 @@
+use crate::args::{GradiateArgs, MixSpace};
 use clap::Parser;
+use crossterm::queue;
+use crossterm::style::{Color, Print, SetForegroundColor};
 use hex_color::HexColor;
-use palette::{named, FromColor, Hsv, IntoColor, Srgb};
-use palette::chromatic_adaptation::AdaptInto;
-use palette::rgb::Rgb;
-use crate::args::GradiateArgs;
+use palette::{named, FromColor, Hsv, IntoColor, Mix, Srgb};
+use std::io::{stdout, Write};
+use std::ops::Deref;
+use crate::spaces::hsv::hsv_space;
+use crate::spaces::rgb::rgb_space;
 
 mod args;
+mod helpers;
+mod spaces;
 
 fn main() {
     let args = GradiateArgs::parse();
     
-    let mut colors: Vec<Hsv<_, f32>> = vec![];
+    let mut colors: Vec<_> = vec![];
+    let mut space: MixSpace = args.space;
     
     if let Some(col) = args.colors {
-        for c in col.split(',') {
-            if let Ok(c) = HexColor::parse(c) {
-                colors.push(Hsv::from_color(Srgb::new(c.r, c.g, c.b).into_format()))
-            } else if let Some(n) = named::from_str(c) {
-                colors.push(Hsv::from_color(n.into_format()))
+        match col.deref() {
+            "trans" => {
+                colors = color_vector!(
+                    Srgb::new(91u8, 206, 250);
+                    Srgb::new(245u8, 169, 184);
+                    Srgb::new(255u8, 255, 255);
+                    Srgb::new(245u8, 169, 184);
+                    Srgb::new(91u8, 206, 250)
+                );
+                space = MixSpace::RGB
+            },
+            _ => {
+                for c in col.split(',') {
+                    if let Ok(c) = HexColor::parse(c) {
+                        colors.push(Hsv::from_color(Srgb::new(c.r, c.g, c.b).into_format()))
+                    } else if let Some(n) = named::from_str(c) {
+                        colors.push(Hsv::from_color(n.into_format()))
+                    }
+                }
             }
         }
+    } else {
+        colors = vec![Hsv::from_color(named::RED.into_format()), Hsv::from_color(named::BLUE.into_format())]
     }
-    
+
+    let mut stdout = stdout();
+
     if args.text.len() == 0 {
         // TODO: Stdin
     } else {
         let out = args.text.join(" ");
+        let quantum = (colors.len() - 1) as f32 / out.len() as f32;
 
-        println!("{}", out);
+        let mut factor: f32 = 0.0;
+        
+
+        for cha in out.chars() {
+            let mix = match space {
+                MixSpace::RGB => rgb_space(&colors, factor),
+                MixSpace::HSV => hsv_space(&colors, factor)
+            };
+            
+            let _ = queue!(stdout, SetForegroundColor(Color::Rgb {r: mix.red, g: mix.green, b: mix.blue}), Print(cha));
+
+            factor += quantum;
+        }
     }
+
+    println!();
+
+    stdout.flush().unwrap()
 }

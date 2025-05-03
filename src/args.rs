@@ -1,5 +1,11 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use clap::ColorChoice;
+
+#[derive(Debug, Copy, Clone, ValueEnum)]
+pub enum MixSpace {
+    RGB,
+    HSV
+}
 
 #[derive(Parser, Debug)]
 #[command(about, long_about=None, version, color = ColorChoice::Auto)]
@@ -22,5 +28,9 @@ pub struct GradiateArgs {
     /// The text to color
     /// 
     /// If empty, will read stdin
-    pub text: Vec<String>
+    pub text: Vec<String>,
+
+    #[arg(long, short, default_value="hsv")]
+    /// Color space used for color mixing
+    pub space: MixSpace
 }
