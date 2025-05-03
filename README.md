@@ -20,3 +20,6 @@ Options:
   -V, --version                    Print version
 ```
 
+# See also
+- [palette](https://github.com/Ogeon/palette) crate, providing the color mixing.
+- [crossterm](https://github.com/crossterm-rs/crossterm) crate, providing terminal coloring.
