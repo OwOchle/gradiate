@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2024"
 description = "Generate gradients in your terminal"
 authors = ["OwOchlé"]
+license = "MIT"
+homepage = "https://github.com/OwOchle/gradiate"
+repository = "https://github.com/OwOchle/gradiate"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
